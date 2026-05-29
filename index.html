@@ -1,1 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOU/TUBE_RAW // retro edition</title>
 
+    <!-- Google Font: VT323 for that pixel-retro feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121d;
+            --surface-light: #1a1a28;
+            --border: #2a2a3d;
+            --text: #c8c8d4;
+            --text-muted: #6a6a7a;
+            --accent-cyan: #00e5ff;
+            --accent-pink: #ff2d78;
+            --accent-green: #00ff88;
+            --youtube-red: #cc0000;
+            --youtube-red-dark: #990000;
+            --glow-cyan: 0 0 12px rgba(0, 229, 255, 0.5);
+            --glow-pink: 0 0 12px rgba(255, 45, 120, 0.5);
+            --glow-green: 0 0 12px rgba(0, 255, 136, 0.5);
+            --font-pixel: 'VT323', 'Courier New', monospace;
+            --font-mono: 'Courier New', 'Consolas', monospace;
+            --font-body: 'Segoe UI', system-ui, sans-serif;
+            --scanline-opacity: 0.06;
+            --crt-flicker: 0.03;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(ellipse at center, rgba(18, 18, 29, 0.7) 0%, rgba(10, 10, 15, 0.95) 100%),
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(255, 255, 255, 0.008) 3px,
+                    rgba(255, 255, 255, 0.008) 4px);
+            background-attachment: fixed;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+                    rgba(0, 0, 0, var(--scanline-opacity)) 4px);
+            animation: scanlineDrift 0.1s linear infinite;
+        }
+        @keyframes scanlineDrift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        @keyframes crtFlicker {
+            0%, 99.5%, 100% { opacity: 1; }
+            99.6%, 99.8% { opacity: 0.85; }
+            99.7% { opacity: 0.7; }
+        }
+        body {
+            animation: crtFlicker 8s infinite;
+        }
+
+        /* ═══════════════════════════════════════════
+           LOCK SCREEN OVERLAY
+           ═══════════════════════════════════════════ */
+        #lockScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #06060c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-family: var(--font-mono);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #lockScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #lockScreen .lock-container {
+            background: #0d0d1a;
+            border: 3px double #333;
+            padding: 40px 36px;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            box-shadow:
+                0 0 40px rgba(255, 45, 120, 0.2),
+                0 0 80px rgba(0, 229, 255, 0.1),
+                inset 0 0 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        #lockScreen .lock-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 1px solid rgba(255, 45, 120, 0.35);
+            pointer-events: none;
+            animation: borderPulse 2s ease-in-out infinite;
+        }
+        @keyframes borderPulse {
+            0%, 100% { border-color: rgba(255, 45, 120, 0.35); }
+            50% { border-color: rgba(0, 229, 255, 0.5); }
+        }
+        #lockScreen .lock-icon {
+            font-size: 52px;
+            margin-bottom: 10px;
+            display: block;
+            animation: lockGlow 2s ease-in-out infinite;
+        }
+        @keyframes lockGlow {
+            0%, 100% { text-shadow: 0 0 18px var(--accent-pink); }
+            50% { text-shadow: 0 0 28px var(--accent-cyan), 0 0 50px var(--accent-pink); }
+        }
+        #lockScreen h2 {
+            font-family: var(--font-pixel);
+            font-size: 2rem;
+            letter-spacing: 4px;
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        #lockScreen .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        #lockScreen .encrypted-key {
+            background: #050510;
+            padding: 8px 14px;
+            margin-bottom: 18px;
+            font-size: 0.7rem;
+            color: #555;
+            word-break: break-all;
+            border: 1px solid #1a1a2a;
+            letter-spacing: 1px;
+        }
+        #lockScreen .encrypted-key span {
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+        #lockScreen label {
+            display: block;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        #lockScreen input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            background: #0a0a14;
+            border: 2px solid #2a2a3d;
+            color: var(--accent-green);
+            outline: none;
+            text-align: center;
+            letter-spacing: 3px;
+            transition: all 0.25s ease;
+            caret-color: var(--accent-cyan);
+        }
+        #lockScreen input[type="password"]:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+        }
+        #lockScreen input[type="password"].error {
+            border-color: var(--accent-pink);
+            box-shadow: 0 0 20px rgba(255, 45, 120, 0.5);
+            animation: shake 0.5s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(4px); }
+        }
+        #lockScreen .btn-unlock {
+            margin-top: 16px;
+            padding: 10px 30px;
+            font-family: var(--font-pixel);
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 2px solid var(--accent-cyan);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        #lockScreen .btn-unlock:hover {
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: var(--glow-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+        #lockScreen .btn-unlock:active {
+            background: rgba(0, 229, 255, 0.2);
+            transform: scale(0.97);
+        }
+        #lockScreen .hint-text {
+            margin-top: 14px;
+            font-size: 0.65rem;
+            color: #444;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
+        #lockScreen .ascii-art {
+            font-size: 0.55rem;
+            color: #1a3a3a;
+            line-height: 1.3;
+            margin-bottom: 10px;
+            white-space: pre;
+            letter-spacing: 0;
+        }
+
+        /* ═══════════════════════════════════════════
+           MAIN APP (hidden until unlocked)
+           ═══════════════════════════════════════════ */
+        #mainApp {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #mainApp.visible {
+            display: flex;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo {
+            font-family: var(--font-pixel);
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+            position: relative;
+            cursor: default;
+            user-select: none;
+        }
+        .logo .you {
+            color: #fff;
+            background: var(--youtube-red);
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-right: 2px;
+            text-shadow: none;
+            box-shadow: 0 0 14px rgba(204, 0, 0, 0.5);
+        }
+        .logo .tube {
+            color: #ddd;
+        }
+        .logo-sub {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-lock {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .btn-lock:hover {
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
+            box-shadow: var(--glow-pink);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: var(--glow-green);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%, 100% { box-shadow: 0 0 6px var(--accent-green); }
+            50% { box-shadow: 0 0 16px var(--accent-green), 0 0 30px rgba(0, 255, 136, 0.4); }
+        }
+
+        /* ── LAYOUT ── */
+        .app-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* ── SIDEBAR ── */
+        aside.sidebar {
+            width: 200px;
+            min-width: 200px;
+            background: var(--surface);
+            border-right: 2px solid var(--border);
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+        }
+        aside.sidebar .sidebar-section {
+            padding: 8px 16px;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+        aside.sidebar a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            letter-spacing: 1px;
+        }
+        aside.sidebar a:hover,
+        aside.sidebar a.active {
+            background: var(--surface-light);
+            border-left-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            text-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+        }
+        aside.sidebar a .icon {
+            margin-right: 8px;
+            display: inline-block;
+            width: 18px;
+            text-align: center;
+        }
+
+        /* ── MAIN CONTENT ── */
+        main.content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 70px);
+        }
+
+        /* ── VIDEO PLAYER ── */
+        .player-section {
+            background: #000;
+            border: 2px solid var(--border);
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        .player-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            outline: none;
+        }
+        .player-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-family: var(--font-mono);
+            pointer-events: none;
+            z-index: 1;
+            text-align: center;
+        }
+        .player-placeholder .big-icon {
+            font-size: 5rem;
+            opacity: 0.5;
+            margin-bottom: 10px;
+        }
+        .player-placeholder p {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+        .player-wrapper video.show~.player-placeholder {
+            display: none;
+        }
+        .player-controls-bar {
+            background: var(--surface);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+        }
+        .btn-load-video {
+            background: var(--youtube-red);
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            cursor: pointer;
+            font-family: var(--font-pixel);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 12px rgba(204, 0, 0, 0.4);
+        }
+        .btn-load-video:hover {
+            background: #ff1a1a;
+            box-shadow: 0 0 22px rgba(255, 0, 0, 0.6);
+            transform: translateY(-1px);
+        }
+        .btn-load-video:active {
+            transform: scale(0.96);
+        }
+        .now-playing-info {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .now-playing-info strong {
+            color: var(--accent-cyan);
+        }
+
+        /* ── VIDEO GRID ── */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* slightly wider min for mobile */
+            gap: 16px;
+        }
+        .video-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .video-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 18px rgba(0, 229, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        .video-card .thumb {
+            width: 100%;
+            aspect-ratio: 16/10;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .video-card .thumb .thumb-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.25;
+        }
+        .video-card .thumb .play-overlay {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            text-shadow: 0 0 16px rgba(255, 255, 255, 0.7);
+            z-index: 2;
+        }
+        .video-card:hover .thumb .play-overlay {
+            opacity: 0.9;
+        }
+        .video-card .info {
+            padding: 10px 12px;
+        }
+        .video-card .info .v-title {
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+            color: #ddd;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+        .video-card .info .v-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+        }
+        .video-card .info .stars {
+            color: #ffb800;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--surface);
+            border-top: 2px solid var(--border);
+            padding: 12px 20px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+        footer .visitor-counter {
+            display: inline-block;
+            background: #000;
+            padding: 3px 10px;
+            border: 1px solid #333;
+            letter-spacing: 3px;
+            color: var(--accent-green);
+            margin-left: 6px;
+        }
+        footer .blink {
+            animation: blinkText 1s step-end infinite;
+        }
+        @keyframes blinkText {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ── TOAST / NOTIFICATION ── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--surface);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 12px 20px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            z-index: 9000;
+            box-shadow: var(--glow-green);
+            animation: toastIn 0.4s ease, toastOut 0.4s ease 1.8s forwards;
+            pointer-events: none;
+        }
+        .toast.error-toast {
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
+            box-shadow: var(--glow-pink);
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            aside.sidebar {
+                width: 140px;
+                min-width: 140px;
+                font-size: 0.65rem;
+            }
+            aside.sidebar a {
+                padding: 6px 10px;
+            }
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+            .logo {
+                font-size: 1.3rem;
+            }
+            header {
+                padding: 8px 12px;
+            }
+            main.content {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            aside.sidebar {
+                display: none; /* hide sidebar on very small screens */
+            }
+            .video-grid {
+                grid-template-columns: 1fr 1fr; /* two columns by default */
+                gap: 8px;
+            }
+            .player-controls-bar {
+                gap: 8px;
+            }
+            .btn-load-video {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* NEW: force single column on very narrow phones for comfortable reading */
+        @media (max-width: 400px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            .video-card .info .v-title {
+                font-size: 0.9rem; /* slightly larger title when alone */
+            }
+            .player-controls-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .now-playing-info {
+                white-space: normal;
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        /* ── SCROLLBAR STYLING ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a3d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3a50;
+        }
+
+        /* ── SELECTION ── */
+        ::selection {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════
+    LOCK SCREEN
+    ═══════════════════════════════════════════ -->
+    <div id="lockScreen">
+        <div class="lock-container">
+            <span class="lock-icon">🔒</span>
+            <div class="ascii-art">
+                ██╗   ██╗ ██████╗ ██╗   ██╗████████╗██╗   ██╗██████╗ ███████╗
+                ╚██╗ ██╔╝██╔═══██╗██║   ██║╚══██╔══╝██║   ██║██╔══██╗██╔════╝
+                ╚████╔╝ ██║   ██║██║   ██║   ██║   ██║   ██║██████╔╝█████╗
+                ██╔██╗ ██║   ██║██║   ██║   ██║   ██║   ██║██╔══██╗██╔══╝
+                ██╔╝ ██╗╚██████╔╝╚██████╔╝   ██║   ╚██████╔╝██████╔╝███████╗
+                ╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝    ╚═════╝ ╚═════╝ ╚══════╝
+            </div>
+            <h2>// ACCESS_LOCKED</h2>
+            <p class="subtitle">Enter decryption key to proceed</p>
+            <div class="encrypted-key">
+                ENCRYPTED KEY: <span id="displayEncryptedKey">cHN1ZnM=</span>
+            </div>
+            <label for="passwordInput">PASSWORD:</label>
+            <input type="password" id="passwordInput" placeholder="••••••••" maxlength="30" autocomplete="off">
+            <br>
+            <button class="btn-unlock" id="btnUnlock">▸ AUTHENTICATE ◂</button>
+            <p class="hint-text">Hint: The golden era of web video...</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+    MAIN APPLICATION
+    ═══════════════════════════════════════════ -->
+    <div id="mainApp">
+        <!-- HEADER -->
+        <header>
+            <div class="logo-area">
+                <span class="logo"><span class="you">YOU</span><span class="tube">TUBE</span></span>
+                <span class="logo-sub">// raw_retro_edition v0.9b</span>
+            </div>
+            <div class="header-actions">
+                <span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);">
+                    <span class="status-dot"></span> SESSION ACTIVE
+                </span>
+                <button class="btn-lock" id="btnLockSite" title="Lock the site">🔒 LOCK</button>
+            </div>
+        </header>
+
+        <!-- LAYOUT: SIDEBAR + CONTENT -->
+        <div class="app-layout">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-section">▶ NAVIGATION</div>
+                <a href="#" class="active"><span class="icon">🏠</span> Home</a>
+                <a href="#"><span class="icon">🔥</span> Trending</a>
+                <a href="#"><span class="icon">📺</span> Subscriptions</a>
+                <a href="#"><span class="icon">📚</span> Library</a>
+                <a href="#"><span class="icon">⏱️</span> History</a>
+                <div class="sidebar-section">▶ CATEGORIES</div>
+                <a href="#"><span class="icon">🎵</span> Music</a>
+                <a href="#"><span class="icon">🎮</span> Gaming</a>
+                <a href="#"><span class="icon">🎬</span> Movies</a>
+                <a href="#"><span class="icon">💻</span> Tech</a>
+                <a href="#"><span class="icon">📰</span> News</a>
+                <a href="#"><span class="icon">🏀</span> Sports</a>
+                <div class="sidebar-section">▶ SYSTEM</div>
+                <a href="#" id="sidebarLoadVideo"><span class="icon">💾</span> Load MP4</a>
+                <a href="#" id="sidebarClearVideo"><span class="icon">🗑️</span> Clear Player</a>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="content">
+                <!-- VIDEO PLAYER -->
+                <section class="player-section">
+                    <div class="player-wrapper" id="playerWrapper">
+                        <video id="videoPlayer" controls preload="metadata"></video>
+                        <div class="player-placeholder" id="playerPlaceholder">
+                            <span class="big-icon">📼</span>
+                            <p>NO MEDIA LOADED</p>
+                            <p style="font-size:0.6rem;color:#444;">Click "LOAD MP4" to play a video</p>
+                        </div>
+                    </div>
+                    <div class="player-controls-bar">
+                        <button class="btn-load-video" id="btnLoadVideo">▶ LOAD MP4</button>
+                        <span class="now-playing-info" id="nowPlayingInfo">
+                            <strong>Now Playing:</strong> <span id="nowPlayingTitle">—</span>
+                        </span>
+                        <span style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-muted);">
+                            📁 <span id="fileSizeDisplay">—</span>
+                        </span>
+                    </div>
+                </section>
+
+                <!-- HIDDEN FILE INPUT -->
+                <input type="file" id="fileInput" accept=".mp4,video/mp4" style="display:none;">
+
+                <!-- VIDEO GRID -->
+                <div class="video-grid" id="videoGrid">
+                    <!-- Cards populated by JS -->
+                </div>
+            </main>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <span>© 2005–2025 YOU/TUBE RAW</span> &nbsp;|&nbsp;
+            <span>Best viewed in 1024×768</span> &nbsp;|&nbsp;
+            <span>Visitors: <span class="visitor-counter" id="visitorCount">000042</span></span> &nbsp;|&nbsp;
+            <span class="blink">⬤ ONLINE</span>
+        </footer>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+    JAVASCRIPT
+    ═══════════════════════════════════════════ -->
+    <script>
+        (function() {
+            // ───────────────────────────────────────
+            // ENCRYPTION CONFIGURATION
+            // ───────────────────────────────────────
+            // The password is encrypted using this algorithm:
+            //   1. Reverse the string
+            //   2. Shift each character code by +1
+            //   3. Base64 encode
+            //
+            // Default password: "retro"
+            // Encrypted result:  "cHN1ZnM="
+            //
+            // To change the password, run this in your browser console:
+            //   function encrypt(p){ return btoa(p.split('').reverse().map(c=>String.fromCharCode(c.charCodeAt(0)+1)).join('')); }
+            //   encrypt("yourNewPassword")  → copy the output and replace ENCRYPTED_PASSWORD below
+            // ───────────────────────────────────────
+            const ENCRYPTED_PASSWORD = "cHN1ZnM="; // <-- change this to set a new password
+            const SESSION_KEY = "yt_raw_unlocked";
+            const SESSION_EXPIRY_KEY = "yt_raw_expiry";
+            const SESSION_DURATION_HOURS = 4;
+
+            // ───────────────────────────────────────
+            // ENCRYPTION FUNCTIONS
+            // ───────────────────────────────────────
+            function encryptPassword(plainText) {
+                const reversed = plainText.split('').reverse().join('');
+                const shifted = reversed.split('').map(c =>
+                    String.fromCharCode(c.charCodeAt(0) + 1)
+                ).join('');
+                return btoa(shifted);
+            }
+
+            function decryptPassword(encrypted) {
+                try {
+                    const decoded = atob(encrypted);
+                    const unshifted = decoded.split('').map(c =>
+                        String.fromCharCode(c.charCodeAt(0) - 1)
+                    ).join('');
+                    return unshifted.split('').reverse().join('');
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            // ───────────────────────────────────────
+            // DOM ELEMENTS
+            // ───────────────────────────────────────
+            const lockScreen = document.getElementById('lockScreen');
+            const mainApp = document.getElementById('mainApp');
+            const passwordInput = document.getElementById('passwordInput');
+            const btnUnlock = document.getElementById('btnUnlock');
+            const btnLockSite = document.getElementById('btnLockSite');
+            const displayEncryptedKey = document.getElementById('displayEncryptedKey');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playerPlaceholder = document.getElementById('playerPlaceholder');
+            const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+            const fileSizeDisplay = document.getElementById('fileSizeDisplay');
+            const fileInput = document.getElementById('fileInput');
+            const btnLoadVideo = document.getElementById('btnLoadVideo');
+            const sidebarLoadVideo = document.getElementById('sidebarLoadVideo');
+            const sidebarClearVideo = document.getElementById('sidebarClearVideo');
+            const videoGrid = document.getElementById('videoGrid');
+            const visitorCountEl = document.getElementById('visitorCount');
+            const playerWrapper = document.getElementById('playerWrapper');
+
+            displayEncryptedKey.textContent = ENCRYPTED_PASSWORD;
+
+            // ───────────────────────────────────────
+            // SESSION MANAGEMENT
+            // ───────────────────────────────────────
+            function isSessionValid() {
+                const unlocked = localStorage.getItem(SESSION_KEY);
+                const expiry = localStorage.getItem(SESSION_EXPIRY_KEY);
+                if (unlocked === 'true' && expiry) {
+                    const expiryTime = parseInt(expiry, 10);
+                    if (Date.now() < expiryTime) {
+                        return true;
+                    }
+                    clearSession();
+                }
+                return false;
+            }
+
+            function setSession() {
+                const expiryTime = Date.now() + (SESSION_DURATION_HOURS * 60 * 60 * 1000);
+                localStorage.setItem(SESSION_KEY, 'true');
+                localStorage.setItem(SESSION_EXPIRY_KEY, expiryTime.toString());
+            }
+
+            function clearSession() {
+                localStorage.removeItem(SESSION_KEY);
+                localStorage.removeItem(SESSION_EXPIRY_KEY);
+            }
+
+            function unlockApp() {
+                lockScreen.classList.add('hidden');
+                mainApp.classList.add('visible');
+                setSession();
+            }
+
+            function lockApp() {
+                clearSession();
+                lockScreen.classList.remove('hidden');
+                mainApp.classList.remove('visible');
+                passwordInput.value = '';
+                passwordInput.classList.remove('error');
+                passwordInput.focus();
+            }
+
+            // ───────────────────────────────────────
+            // AUTHENTICATION
+            // ───────────────────────────────────────
+            function attemptUnlock() {
+                const input = passwordInput.value.trim();
+                if (!input) {
+                    shakeLockScreen();
+                    showToast('Enter a password!', true);
+                    return;
+                }
+                const encryptedInput = encryptPassword(input);
+                if (encryptedInput === ENCRYPTED_PASSWORD) {
+                    passwordInput.classList.remove('error');
+                    unlockApp();
+                    showToast('✅ Access granted. Welcome back!', false);
+                } else {
+                    passwordInput.classList.add('error');
+                    shakeLockScreen();
+                    showToast('❌ Invalid key. Access denied.', true);
+                    setTimeout(() => {
+                        passwordInput.classList.remove('error');
+                    }, 600);
+                }
+            }
+
+            function shakeLockScreen() {
+                const container = lockScreen.querySelector('.lock-container');
+                container.style.animation = 'none';
+                container.offsetHeight;
+                container.style.animation = 'shake 0.5s ease';
+                setTimeout(() => {
+                    container.style.animation = '';
+                }, 500);
+            }
+
+            // ───────────────────────────────────────
+            // TOAST NOTIFICATIONS
+            // ───────────────────────────────────────
+            function showToast(message, isError = false) {
+                document.querySelectorAll('.toast').forEach(t => t.remove());
+                const toast = document.createElement('div');
+                toast.className = 'toast' + (isError ? ' error-toast' : '');
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 2400);
+            }
+
+            // ───────────────────────────────────────
+            // VIDEO PLAYER FUNCTIONS
+            // ───────────────────────────────────────
+            function loadVideoFile(file) {
+                if (!file) return;
+                if (!file.type.startsWith('video/') && !file.name.toLowerCase().endsWith('.mp4')) {
+                    showToast('⚠️ Please select a valid MP4 file.', true);
+                    return;
+                }
+                const url = URL.createObjectURL(file);
+                if (videoPlayer.dataset.blobUrl) {
+                    URL.revokeObjectURL(videoPlayer.dataset.blobUrl);
+                }
+                videoPlayer.src = url;
+                videoPlayer.dataset.blobUrl = url;
+                videoPlayer.classList.add('show');
+                videoPlayer.load();
+                videoPlayer.play().catch(() => {});
+                nowPlayingTitle.textContent = file.name;
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                fileSizeDisplay.textContent = sizeMB + ' MB';
+                playerPlaceholder.style.display = 'none';
+                showToast('📼 Loaded: ' + file.name, false);
+                window._lastLoadedFileName = file.name;
+                window._lastLoadedFileSize = sizeMB;
+            }
+
+            function clearVideoPlayer() {
+                if (videoPlayer.dataset.blobUrl) {
+                    URL.revokeObjectURL(videoPlayer.dataset.blobUrl);
+                }
+                videoPlayer.src = '';
+                videoPlayer.removeAttribute('src');
+                videoPlayer.classList.remove('show');
+                videoPlayer.dataset.blobUrl = '';
+                nowPlayingTitle.textContent = '—';
+                fileSizeDisplay.textContent = '—';
+                playerPlaceholder.style.display = 'flex';
+                window._lastLoadedFileName = null;
+                window._lastLoadedFileSize = null;
+                showToast('🗑️ Player cleared.', false);
+            }
+
+            function triggerFilePicker() {
+                fileInput.click();
+            }
+
+            // ───────────────────────────────────────
+            // VIDEO GRID CARDS
+            // ───────────────────────────────────────
+            const demoVideos = [
+                { title: 'Windows 95 Startup Sound (HD Remaster)', channel: 'RetroTechArchive', views: '1.2M', stars: 4, icon: '🪟', color1: '#1a3a5c', color2: '#0d2137' },
+                { title: 'The Matrix Rain Effect Tutorial (1999)', channel: 'CodeNostalgia', views: '890K', stars: 5, icon: '💻', color1: '#0a2a0a', color2: '#001a00' },
+                { title: 'Dial-Up Internet Connection ASMR', channel: 'NostalgicSounds', views: '2.4M', stars: 4, icon: '📞', color1: '#3a1a3a', color2: '#1a0d1a' },
+                { title: 'VHS Tape Rewinding - 10 Hour Loop', channel: 'VHSForever', views: '567K', stars: 3, icon: '📼', color1: '#2a1a0a', color2: '#1a0f05' },
+                { title: 'Commodore 64 Gaming Montage 1987', channel: '8BitLegends', views: '1.8M', stars: 5, icon: '🕹️', color1: '#1a2a3a', color2: '#0d1822' },
+                { title: 'Retro Tech Unboxing: Nokia 3310', channel: 'BrickPhoneClub', views: '420K', stars: 4, icon: '📱', color1: '#2a2a1a', color2: '#1a1a0d' },
+                { title: 'Synthwave Mix – Neon Nights 1985', channel: 'SynthFM', views: '3.1M', stars: 5, icon: '🎹', color1: '#3a0a2a', color2: '#1a0515' },
+                { title: 'Old Internet Explorer Loading Screen', channel: 'WebArchaeology', views: '780K', stars: 4, icon: '🌐', color1: '#1a3a3a', color2: '#0d1a1a' },
+            ];
+
+            function buildVideoGrid() {
+                videoGrid.innerHTML = '';
+                demoVideos.forEach((vid, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.title = 'Click to load an MP4 for this slot';
+                    card.innerHTML = `
+                        <div class="thumb" style="background: linear-gradient(135deg, ${vid.color1}, ${vid.color2});">
+                          <span style="font-size:3rem;z-index:1;position:relative;">${vid.icon}</span>
+                          <div class="thumb-pattern" style="
+                            background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.03) 8px, rgba(255,255,255,0.03) 16px);
+                          "></div>
+                          <span class="play-overlay">▶</span>
+                        </div>
+                        <div class="info">
+                          <div class="v-title">${vid.title}</div>
+                          <div class="v-meta">${vid.channel} · ${vid.views} views</div>
+                          <div class="stars">${'★'.repeat(vid.stars)}${'☆'.repeat(5 - vid.stars)}</div>
+                        </div>
+                      `;
+                    card.addEventListener('click', () => {
+                        triggerFilePicker();
+                        window._clickedCardIndex = index;
+                    });
+                    videoGrid.appendChild(card);
+                });
+            }
+
+            // ───────────────────────────────────────
+            // VISITOR COUNTER
+            // ───────────────────────────────────────
+            function updateVisitorCount() {
+                let count = parseInt(localStorage.getItem('yt_raw_visitors') || '42', 10);
+                if (Math.random() < 0.3) {
+                    count += Math.floor(Math.random() * 3) + 1;
+                    localStorage.setItem('yt_raw_visitors', count.toString());
+                }
+                visitorCountEl.textContent = String(count).padStart(6, '0');
+            }
+
+            // ───────────────────────────────────────
+            // DRAG AND DROP SUPPORT
+            // ───────────────────────────────────────
+            function setupDragDrop() {
+                playerWrapper.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playerWrapper.style.borderColor = 'var(--accent-cyan)';
+                    playerWrapper.style.boxShadow = 'var(--glow-cyan)';
+                });
+                playerWrapper.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playerWrapper.style.borderColor = '';
+                    playerWrapper.style.boxShadow = '';
+                });
+                playerWrapper.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    playerWrapper.style.borderColor = '';
+                    playerWrapper.style.boxShadow = '';
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const file = files[0];
+                        if (file.name.toLowerCase().endsWith('.mp4') || file.type.startsWith('video/')) {
+                            loadVideoFile(file);
+                        } else {
+                            showToast('⚠️ Drop an MP4 file here!', true);
+                        }
+                    }
+                });
+                const playerSection = document.querySelector('.player-section');
+                if (playerSection) {
+                    playerSection.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        playerSection.style.borderColor = 'var(--accent-cyan)';
+                    });
+                    playerSection.addEventListener('dragleave', () => {
+                        playerSection.style.borderColor = '';
+                    });
+                    playerSection.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        playerSection.style.borderColor = '';
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0 && (files[0].name.toLowerCase().endsWith('.mp4') || files[0].type.startsWith('video/'))) {
+                            loadVideoFile(files[0]);
+                        }
+                    });
+                }
+            }
+
+            // ───────────────────────────────────────
+            // EVENT LISTENERS
+            // ───────────────────────────────────────
+            btnUnlock.addEventListener('click', attemptUnlock);
+            passwordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    attemptUnlock();
+                }
+            });
+            btnLockSite.addEventListener('click', () => {
+                lockApp();
+                showToast('🔒 Site locked. Session cleared.', false);
+            });
+            btnLoadVideo.addEventListener('click', triggerFilePicker);
+            if (sidebarLoadVideo) {
+                sidebarLoadVideo.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    triggerFilePicker();
+                });
+            }
+            if (sidebarClearVideo) {
+                sidebarClearVideo.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    clearVideoPlayer();
+                });
+            }
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    loadVideoFile(file);
+                }
+                fileInput.value = '';
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'l' && mainApp.classList.contains('visible')) {
+                    e.preventDefault();
+                    triggerFilePicker();
+                }
+                if (e.key === 'Escape' && mainApp.classList.contains('visible') && !document.activeElement.closest('input')) {
+                    lockApp();
+                }
+            });
+
+            // ───────────────────────────────────────
+            // INITIALIZATION
+            // ───────────────────────────────────────
+            function init() {
+                buildVideoGrid();
+                setupDragDrop();
+                updateVisitorCount();
+
+                if (isSessionValid()) {
+                    unlockApp();
+                } else {
+                    lockScreen.classList.remove('hidden');
+                    mainApp.classList.remove('visible');
+                    passwordInput.focus();
+                }
+
+                setInterval(updateVisitorCount, 30000);
+
+                console.log('%c YOU/TUBE RAW // retro edition %c v0.9b ',
+                    'background:#cc0000;color:#fff;padding:6px 10px;font-family:monospace;font-size:1rem;',
+                    'background:#000;color:#0f0;padding:6px 10px;font-family:monospace;');
+                console.log('%c Default password: %cretro',
+                    'color:#aaa;font-family:monospace;',
+                    'color:#ff2d78;font-weight:bold;font-family:monospace;');
+                console.log('%c Encrypted key: %c' + ENCRYPTED_PASSWORD,
+                    'color:#aaa;font-family:monospace;',
+                    'color:#00e5ff;font-family:monospace;');
+                console.log('%c Drag & drop MP4 files onto the player!',
+                    'color:#ffb800;font-family:monospace;font-size:0.9rem;');
+            }
+
+            window.ytEncryptPassword = encryptPassword;
+            window.ytDecryptPassword = decryptPassword;
+            window.ytGetEncryptedKey = () => ENCRYPTED_PASSWORD;
+
+            init();
+        })();
+    </script>
+</body>
+</html>
